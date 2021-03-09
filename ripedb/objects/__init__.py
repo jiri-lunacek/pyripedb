@@ -71,17 +71,20 @@ class RipeObject():
             return self._type
         found_items = []
         attrname = attrname.replace('_','-')
+        if attrname not in self._template_attributes:
+            raise AttributeError
         for item in self.attributes:
             if item['name'] == attrname:
                 item_resolved = self._resolve_attribute(item)
                 if item_resolved is not None:
                     found_items.append(self._resolve_attribute(item))
-        if len(found_items) == 0:
-            raise AttributeError
-        if len(found_items) == 1:
+
+        if self._template_attributes[attrname].get('cardinality','SINGLE') == 'MULTIPLE':
+            return found_items
+        elif len(found_items) > 0:
             return found_items[0]
         else:
-            return found_items
+            return None
     
     def get_attributes(self, format = dict):
         if format == str:
